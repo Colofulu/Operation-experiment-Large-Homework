@@ -195,8 +195,8 @@ void list_files_detailed(const char* path)
         }
         else 
         {
-    		file_type = 'f';  // 文件类型    
-		}
+    	    file_type = 'f';  // 文件类型    
+	}
         
         // 输出文件信息：根据获取到的文件信息，使用 printf 函数输出文件的详细信息
         printf("%c %5lu %s %s %10ld %s %s\n",
