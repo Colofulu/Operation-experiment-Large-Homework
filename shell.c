@@ -163,24 +163,26 @@ void list_files_detailed(const char* path)
         fprintf(stderr, "Error: Cannot open directory '%s'. %s\n", path, strerror(errno));
         return;
     }
-
+    // readdir 函数：用于读取目录中的条目。它返回一个指向 dirent 结构体的指针，该结构体包含有关目录中下一个文件或子目录的信息。
     while ((entry = readdir(dir)) != NULL)
     {
+        // 构建文件路径：使用 sprintf 函数构建文件的完整路径
         char file_path[PATH_MAX];
         sprintf(file_path, "%s/%s", path, entry->d_name);
 
+        // 获取文件信息：使用 stat 函数获取文件的详细信息，包括文件类型、权限、所有者、组等
         struct stat file_stat;
         if (stat(file_path, &file_stat) == -1)
         {
             perror("stat");
             exit(EXIT_FAILURE);
         }
-
+        // 获取所有者和组信息：使用 getpwuid 和 getgrgid 函数获取文件所有者和组的详细信息
         struct passwd* owner_info = getpwuid(file_stat.st_uid);
         struct group* group_info = getgrgid(file_stat.st_gid);
         char time_str[20];
         strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", localtime(&file_stat.st_mtime));
-
+        // 输出文件信息：根据获取到的文件信息，使用 printf 函数输出文件的详细信息
         printf("%s %5lu %s %s %10ld %s %s\n",
             (S_ISDIR(file_stat.st_mode)) ? "file" : "-",
             file_stat.st_nlink,
