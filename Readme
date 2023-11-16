@@ -1,1 +1,108 @@
+上述代码实现了一个简单的自定义 Shell 命令解释器，支持 `help`、`list`、`cd` 和 `exit` 命令。以下是对代码的解析：
 
+1. **主函数：**
+   - 通过循环等待用户输入命令。
+   - 通过 `fgets` 获取用户输入的命令。
+   - 使用 `strtok` 分词，将输入的命令和参数分开。
+
+```c
+char input[MAX_INPUT_SIZE];
+
+while (1)
+{
+    printf("<MyShell>: ");
+    fgets(input, sizeof(input), stdin);
+
+    // 移除末尾的换行符
+    input[strcspn(input, "\n")] = 0;
+
+    // 分词...
+```
+
+2. **处理命令：**
+   - 解析用户输入，识别并执行相应的命令。
+   - 对于 `list` 命令，调用 `parse_list_command` 函数进行处理。
+
+```c
+if (token_count > 0)
+{
+    if (strcmp(tokens[0], "help") == 0)
+    {
+        show_help();
+    }
+    else if (strcmp(tokens[0], "list") == 0)
+    {
+        parse_list_command(tokens, token_count);
+    }
+    else if (strcmp(tokens[0], "cd") == 0)
+    {
+        // 处理 cd 命令
+        // ...
+    }
+    else if (strcmp(tokens[0], "exit") == 0)
+    {
+        // 处理 exit 命令
+        exit(EXIT_SUCCESS);
+    }
+    else
+    {
+        printf("Error: Unknown command. Type 'help' for available commands.\n");
+    }
+}
+```
+
+3. **解析 list 命令：**
+   - 解析 `list` 命令的参数，包括路径和是否显示详细信息。
+   - 根据参数调用相应的函数，例如 `list_files` 或 `list_files_detailed`。
+
+```c
+void parse_list_command(char* tokens[], int token_count)
+{
+    const char* path = "."; // 默认为当前目录
+    int detailed_info = 0;
+
+    // 解析参数...
+    
+    // 根据参数执行相应操作
+    if (detailed_info)
+    {
+        list_files_detailed(path);
+    }
+    else
+    {
+        list_files(path);
+    }
+}
+```
+
+4. **显示帮助信息：**
+   - `show_help` 函数用于显示帮助信息。
+
+```c
+void show_help()
+{
+    printf("Custom Shell Command Interpreter\n");
+    printf("Usage:\n");
+    printf("  help           展示help信息\n");
+    printf("  list <dir>     列出dir目录下所有文件\n");
+    // 如果有新的命令，添加到help中
+}
+```
+
+5. **列出文件和详细信息：**
+   - `list_files` 函数列出指定目录下的所有文件。
+   - `list_files_detailed` 函数列出详细信息，包括文件类型、权限、所有者、组、大小、修改时间等。
+
+```c
+void list_files(const char* path)
+{
+    // 列出文件...
+}
+
+void list_files_detailed(const char* path)
+{
+    // 列出详细信息...
+}
+```
+
+总体来说，这个 Shell 实现了基本的命令解释和执行功能，支持列出文件和详细信息，以及切换目录和退出。
