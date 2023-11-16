@@ -105,4 +105,76 @@ void list_files_detailed(const char* path)
 }
 ```
 
-总体来说，这个 Shell 实现了基本的命令解释和执行功能，支持列出文件和详细信息，以及切换目录和退出。
+当你在GitHub中编写Markdown时，可以使用以下格式将我之前的回复转换为Markdown文件：
+
+```markdown
+# 代码解析
+
+这段代码用于遍历目录中的文件和子目录，并输出它们的详细信息。以下是对代码的解析：
+
+## 1. `readdir` 函数
+
+```c
+while ((entry = readdir(dir)) != NULL)
+{
+    // ...
+}
+```
+
+上述代码段使用一个循环，每次迭代都通过 `readdir` 读取目录中的下一个条目，直到目录中的所有条目都被读取完毕。
+
+## 2. 构建文件路径
+
+```c
+char file_path[PATH_MAX];
+sprintf(file_path, "%s/%s", path, entry->d_name);
+```
+
+这里将用户输入的路径 `path` 和当前读取到的文件或子目录的名称 `entry->d_name` 结合起来，得到文件的完整路径。
+
+## 3. 获取文件信息
+
+```c
+struct stat file_stat;
+if (stat(file_path, &file_stat) == -1)
+{
+    perror("stat");
+    exit(EXIT_FAILURE);
+}
+```
+
+如果获取文件信息失败，程序会输出错误信息并退出。
+
+## 4. 获取所有者和组信息
+
+```c
+struct passwd* owner_info = getpwuid(file_stat.st_uid);
+struct group* group_info = getgrgid(file_stat.st_gid);
+```
+
+## 5. 格式化时间信息
+
+```c
+char time_str[20];
+strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", localtime(&file_stat.st_mtime));
+```
+
+这里使用 `%Y-%m-%d %H:%M:%S` 格式，表示年-月-日 时:分:秒。
+
+## 6. 输出文件信息
+
+```c
+printf("%s %5lu %s %s %10ld %s %s\n",
+       (S_ISDIR(file_stat.st_mode)) ? "file" : "-",
+       file_stat.st_nlink,
+       (owner_info != NULL) ? owner_info->pw_name : "",
+       (group_info != NULL) ? group_info->gr_name : "",
+       file_stat.st_size,
+       time_str,
+       entry->d_name);
+```
+
+这里根据文件类型（目录、普通文件等）输出不同的标识符，以及文件的链接数、所有者、组、文件大小、修改时间等信息。
+```
+
+将上述Markdown格式的文本保存为以 `.md` 为后缀的文件，然后上传到GitHub或其他支持Markdown的平台上。
