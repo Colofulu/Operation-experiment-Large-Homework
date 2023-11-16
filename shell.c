@@ -1,4 +1,4 @@
-// ͷ�ļ�
+// 头文件
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,32 +10,35 @@
 #include <grp.h>
 #include <time.h>
 
-// �����
+// 定义宏
 #define MAX_INPUT_SIZE 1024
 
-// ��������
+// 声明函数，这里只有四个自定义函数
 void list_files_detailed(const char* path);
 void parse_list_command(char* tokens[], int token_count);
 void show_help();
 void list_files(const char* path);
 
-// ������
+// 主函数
 int main()
 {
     char input[MAX_INPUT_SIZE];
 
     while (1)
     {
+        // <MyShell>表示自定义shell
         printf("<MyShell>: ");
+        // fgets获取输入的命令
         fgets(input, sizeof(input), stdin);
 
-        // �Ƴ�ĩβ�Ļ��з�
+        // 移除末尾的换行符
         input[strcspn(input, "\n")] = 0;
 
-        // �ִ�
+        // 分词
         char* tokens[10];
         int token_count = 0;
-
+        // 使用strtok将输入的命令和参数分词，将分词结果存储再tokens数组中
+        // tokens数组用于保存分割后的命令和参数
         char* token = strtok(input, " ");
         while (token != NULL)
         {
@@ -50,9 +53,10 @@ int main()
 
             token = strtok(NULL, " ");
         }
-        // ִ����Ӧ����
+        // 执行相应命令
         if (token_count > 0)
-        {
+        {    
+            // 根据不同的类型来决定执行不同的命令
             if (strcmp(tokens[0], "help") == 0)
             {
                 show_help();
@@ -63,12 +67,12 @@ int main()
             }
             else if (strcmp(tokens[0], "cd") == 0)
             {
-                // ���� cd ����
-                // ...
+                // 处理 cd 命令
+                // 这里代码还没写空着先
             }
             else if (strcmp(tokens[0], "exit") == 0)
             {
-                // ���� exit ����
+                // 处理 exit 命令
                 exit(EXIT_SUCCESS);
             }
             else
@@ -82,36 +86,40 @@ int main()
 }
 
 
-// show_help()
+// show_help()这里展示当前已经实现的命令以及其功能
 void show_help()
 {
     printf("Custom Shell Command Interpreter\n");
     printf("Usage:\n");
-    printf("  help           չʾhelp��Ϣ\n");
-    printf("  list <dir>     �г�dirĿ¼�������ļ�\n");
-    // ������µ�������ӵ�help��
+    printf("  help           展示help信息\n");
+    printf("  list <dir>     列出dir目录下所有文件(dir默认当前目录)\n");
+    printf("  list <dir> -l  列出dir目录下所有文件详细信息(dir默认当前目录)\n");
+    printf("  exit           退出自定义 shell\n");
+    // 如果有新的命令，添加到help中
 }
 
-// ���� list ����Ĳ���
+// 解析 list 命令的参数，不同的参数有不同的调用结果
 void parse_list_command(char* tokens[], int token_count)
 {
-    const char* path = "."; // Ĭ��Ϊ��ǰĿ¼
-    int detailed_info = 0;
+    const char* path = "."; // 默认为当前目录
+    int detailed_info = 0; // 用来判断是否需要输出详细信息
 
-    // ��������
+    // 解析参数
     for (int i = 1; i < token_count; i++)
     {
+        // 如果有 -l 则说明需要输出详细信息
         if (strcmp(tokens[i], "-l") == 0)
         {
             detailed_info = 1;
         }
+        // 单纯输出文件
         else
         {
             path = tokens[i];
         }
     }
 
-    // ���ݲ���ִ����Ӧ����
+    // 根据参数执行相应操作
     if (detailed_info)
     {
         list_files_detailed(path);
@@ -122,27 +130,29 @@ void parse_list_command(char* tokens[], int token_count)
     }
 }
 
-// list_files() �����޸�
+// list_files() 函数：单纯输出有哪些文件
 void list_files(const char* path)
 {
     DIR* dir;
     struct dirent* entry;
 
+    // 如果目录不存在，那么输出错误消息，然后返回控制到main函数
     if ((dir = opendir(path)) == NULL)
     {
         fprintf(stderr, "Error: Cannot open directory '%s'. %s\n", path, strerror(errno));
-        exit(EXIT_FAILURE);
+        return;
     }
 
+    // 如果目录存在，则遍历
     while ((entry = readdir(dir)) != NULL)
     {
         printf("%s\n", entry->d_name);
     }
-
+    // 退出
     closedir(dir);
 }
 
-// list_files_detailed() ��������
+// list_files_detailed() 函数：输出文件类型等详细信息
 void list_files_detailed(const char* path)
 {
     DIR* dir;
@@ -151,7 +161,7 @@ void list_files_detailed(const char* path)
     if ((dir = opendir(path)) == NULL)
     {
         fprintf(stderr, "Error: Cannot open directory '%s'. %s\n", path, strerror(errno));
-        exit(EXIT_FAILURE);
+        return;
     }
 
     while ((entry = readdir(dir)) != NULL)
