@@ -163,6 +163,7 @@ void list_files_detailed(const char* path)
         fprintf(stderr, "Error: Cannot open directory '%s'. %s\n", path, strerror(errno));
         return;
     }
+    
     // readdir 函数：用于读取目录中的条目。它返回一个指向 dirent 结构体的指针，该结构体包含有关目录中下一个文件或子目录的信息。
     while ((entry = readdir(dir)) != NULL)
     {
@@ -177,21 +178,35 @@ void list_files_detailed(const char* path)
             perror("stat");
             exit(EXIT_FAILURE);
         }
+        
         // 获取所有者和组信息：使用 getpwuid 和 getgrgid 函数获取文件所有者和组的详细信息
         struct passwd* owner_info = getpwuid(file_stat.st_uid);
         struct group* group_info = getgrgid(file_stat.st_gid);
         char time_str[20];
         strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", localtime(&file_stat.st_mtime));
+        char file_type = '-';
+        if (S_ISDIR(file_stat.st_mode))
+        {
+            file_type = 'd';  // 目录
+        }
+        else if (S_ISLNK(file_stat.st_mode))
+        {
+            file_type = 'l';  // 符号链接
+        }
+        else 
+        {
+    		file_type = 'f';  // 文件类型    
+		}
+        
         // 输出文件信息：根据获取到的文件信息，使用 printf 函数输出文件的详细信息
-        printf("%s %5lu %s %s %10ld %s %s\n",
-            (S_ISDIR(file_stat.st_mode)) ? "file" : "-",
-            file_stat.st_nlink,
-            (owner_info != NULL) ? owner_info->pw_name : "",
-            (group_info != NULL) ? group_info->gr_name : "",
-            file_stat.st_size,
-            time_str,
-            entry->d_name);
+        printf("%c %5lu %s %s %10ld %s %s\n",
+               file_type,
+               file_stat.st_nlink,
+               (owner_info != NULL) ? owner_info->pw_name : "",
+               (group_info != NULL) ? group_info->gr_name : "",
+               file_stat.st_size,
+               time_str,
+               entry->d_name);
     }
-
     closedir(dir);
 }
